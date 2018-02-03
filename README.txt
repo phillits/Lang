@@ -25,3 +25,17 @@ I have split the project up according to the major subfields of linguistics.
 Each subfield has a folder, and each folder contains a header file, an 
 implementation file, and a test file.
 
+Workflow
+
+I'm following a simple workflow pattern for each subfield:
+
+  1) Write a header file.
+
+  2) Write unit tests.
+
+  3) Implement.
+  
+Contributing
+
+I welcome contributions if anyone wants to work on this with me.  Feel free to 
+either contact me or just make a pull request.
