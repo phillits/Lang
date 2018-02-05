@@ -1,10 +1,7 @@
 /*
 Filename: expt.h
-Author:   Tyler Phillips
-Date:     11/09/17
 
-This library contains a general exception base class and a set of general-
-purpose exceptions.
+This file contains the definitions for the expt library.
 */
 
 #include <string>
@@ -21,7 +18,9 @@ namespace expt {
     /*
     This class is a basic, all-purpose exception.  It should be used as a base 
     class for all other exceptions, and it can be used itself in situations 
-    where no other exception seems to fit.
+    where no other exception seems to fit.  It includes an optional error 
+    message with which to provide information about why the exception was 
+    thrown.
     */
     
     protected:
