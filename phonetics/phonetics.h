@@ -26,6 +26,13 @@ Contents:
     class Tone
     class Syllable
     typedef PhoneticSequence
+  
+  Functions:
+    
+    PhoneticSequence decode(std::string, PhoneticEncoding)
+    std::string unicode(const PhoneticSequence&)
+    std::string kirschenbaum(const PhoneticSequence&)
+    std::string x-sampa(const PhoneticSequence&)
 */
 
 #include <string>
@@ -2567,6 +2574,27 @@ namespace lang {
         Exceptions:
           expt::IndexError: Thrown if the bounds check fails.
         */
+      
+      std::string unicode() const;
+        
+        /*
+        Returns the IPA representation of the syllable, using Unicode 
+        characters where necessary.  Will be enclosed in square brackets.
+        */
+
+      std::string kirschenbaum() const;
+
+        /*
+        Returns the IPA representation of the syllable using Kirschenbaum 
+        encoding.  Will be enclosed in square brackets.
+        */
+
+      std::string x-sampa() const;
+
+        /*
+        Returns the IPA representation of the syllable using X-SAMPA encoding. 
+        Will be enclosed in square brackets.
+        */
     
   };
   
@@ -2593,6 +2621,27 @@ namespace lang {
     Exceptions:
       DecodingFailed: Thrown if the transcription cannot be entirely recognized
                       in the specified transcription system.
+    */
+  
+  std::string unicode(const PhoneticSequence& phonetic_sequence);
+        
+    /*
+    Returns the IPA representation of the sequence, using Unicode characters 
+    where necessary.  Will be enclosed in square brackets.
+    */
+      
+  std::string kirschenbaum(const PhoneticSequence& phonetic_sequence);
+        
+    /*
+    Returns the IPA representation of the sequence using Kirschenbaum 
+    encoding.  Will be enclosed in square brackets.
+    */
+      
+  std::string x-sampa(const PhoneticSequence& phonetic_sequence);
+        
+    /*
+    Returns the IPA representation of the sequence using X-SAMPA encoding.  
+    Will be enclosed in square brackets.
     */
   
   Phone::Phonation& operator++(Phone::Phonation& start_val);
