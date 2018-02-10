@@ -1,16 +1,38 @@
 /*
 Filename: phonetics.h
-Author:   Tyler Phillips
-Date:     11/02/17
 
 This header file contains the definitions of the phonetics portion of the lang 
 library.
+
+Contents:
+
+  Classes:
+    
+    class ImpossibleArticulation
+    enum PhoneticEncoding
+    class DecodingFailed
+    class Phone
+      enum Phonation
+      enum Nasalization
+    class Vowel
+      enum Height
+      enum Backness
+      enum Roundedness
+    class Consonant
+      enum Manner
+      enum Place
+      enum VOT
+      enum Mechanism
+    class Tone
+    class Syllable
+    typedef PhoneticSequence
 */
 
-#include "expt.h"
 #include <string>
 #include <vector>
 #include <initializer_list>
+
+#include "expt.h"
 
 #ifndef PHONETICS_HEADER
 #define PHONETICS_HEADER
@@ -76,6 +98,71 @@ namespace lang {
     
   };
   
+  enum PhoneticEncoding {unicode      = 0, 
+                         x-sampa      = 1, 
+                         kirschenbaum = 2};
+    
+    /*
+    This enumeration provides the set of options for encoding systems for 
+    string representations of phones, phonemes, etc.  It is intended to be used
+    to be used to specify which coding system is being used when passing a 
+    string to a function.
+    */
+  
+  class DecodingFailed : public expt::Exception {
+    
+    /*
+    An exception to be thrown when an attempt to construct an object from a 
+    phonetic/phonemic/etc. transcription fails.
+    */
+    
+    public:
+      
+      ~DecodingFailed();
+        
+        /*
+        Destructor
+        */
+      
+      DecodingFailed();
+        
+        /*
+        Empty constructor
+        */
+      
+      DecodingFailed(std::string message);
+        
+        /*
+        Standard constructor
+        
+        Parameters:
+          message:  A message to give some information about why the exception 
+                    was thrown.
+        */
+      
+      DecodingFailed(const DecodingFailed& original);
+        
+        /*
+        Copy constructor
+        
+        Parameters:
+          original: Other DecodingFailed to be copied
+        */
+      
+      operator expt::Exception();
+        
+        /*
+        Returns a general exception with the same error message.
+        */
+      
+      operator expt::ValueError();
+        
+        /*
+        Returns a ValueError with the same error message.
+        */
+    
+  };
+  
   class Phone {
     
     /*
@@ -85,8 +172,10 @@ namespace lang {
     
     Pure virtual functions that child classes must implement:
     
-      virtual bool _is_valid() const
       virtual std::string description() const
+      virtual std::string unicode() const
+      virtual std::string kirschenbaum const
+      virtual std::string x-sampa const
     */
     
     public:
@@ -148,15 +237,6 @@ namespace lang {
         1.0.  This standard can be measured either as the standard length for 
         the language in question or the average length of the other phones in 
         the utterance.
-        */
-      
-      virtual bool _is_valid() const = 0;
-        
-        /*
-        Returns whether the phone is a valid, articulable phone given the 
-        current values of its fields.  This function should be called any time 
-        a change is made to a field that could possibly result in an impossible
-        articulation.
         */
     
     public:
@@ -302,6 +382,27 @@ namespace lang {
         Returns a string description of the phone which describes all of its 
         defining characteristics.
         */
+      
+      virtual std::string unicode() const = 0;
+        
+        /*
+        Returns the IPA representation of the phone, using Unicode characters 
+        where necessary.  Will be enclosed in square brackets.
+        */
+      
+      virtual std::string kirschenbaum() const = 0;
+        
+        /*
+        Returns the IPA representation of the phone using Kirschenbaum 
+        encoding.  Will be enclosed in square brackets.
+        */
+      
+      virtual std::string x-sampa() const = 0;
+        
+        /*
+        Returns the IPA representation of the phone using X-SAMPA encoding.  
+        Will be enclosed in square brackets.
+        */
     
   };
   
@@ -393,13 +494,6 @@ namespace lang {
         This library classifies all vowels as either r-colored or not r-
         colored.  If this field is true, the vowel is r-colored.
         */
-      
-      bool _is_valid() const;
-        
-        /*
-        Returns whether the vowel is a valid, articulable vowel given the 
-        current values of its fields.
-        */
     
     public:
       
@@ -482,6 +576,30 @@ namespace lang {
                                 passed for phonation.
       */
     
+    Vowel(std::string transcription, PhoneticEncoding encoding = x-sampa);
+      
+      /*
+      Transcription constructor
+      
+      Constructs a vowel from a string containing a phonetic transcription 
+      representing a single vowel.  See the enumeration PhoneticEncoding for a 
+      list of supported transcription systems.
+      
+      Parameters:
+        transcription:  A phonetic transcription representing a single vowel.  
+                        The transcription may be enclosed in square brackets or
+                        not enclosed.  It may not be enclosed in any other type
+                        of bracket.
+        encoding:       This parameter specifies which transcription system 
+                        the transcription is encoded in using the set of 
+                        options provided by the PhoneticEncoding enumeration.
+      
+      Exceptions:
+        DecodingFailed: Thrown if transcription cannot be recognized as a 
+                        single valid vowel in the specified transcription 
+                        system.
+      */
+    
     Vowel(const Vowel& original);
       
       /*
@@ -516,6 +634,27 @@ namespace lang {
       characteristics using standard IPA terminology.
       */
     
+    std::string unicode() const;
+        
+      /*
+      Returns the IPA representation of the vowel, using Unicode characters 
+      where necessary.  Will be enclosed in square brackets.
+      */
+      
+    std::string kirschenbaum() const;
+        
+      /*
+      Returns the IPA representation of the vowel using Kirschenbaum 
+      encoding.  Will be enclosed in square brackets.
+      */
+      
+    std::string x-sampa() const;
+        
+      /*
+      Returns the IPA representation of the vowel using X-SAMPA encoding.  
+      Will be enclosed in square brackets.
+      */
+    
     float height() const;
       
       /*
@@ -539,7 +678,7 @@ namespace lang {
                                 is outside of the range specified above.
       */
     
-    void raise(float val = 1);
+    void raise(float val = 1.0);
       
       /*
       Increases the height of the vowel by the amount given.  If no value is 
@@ -553,7 +692,7 @@ namespace lang {
                                 the height to exceed 6.0.
       */
     
-    void lower(float val = 1);
+    void lower(float val = 1.0);
       
       /*
       Decreases the height of the vowel by the amount given.  If no value is 
@@ -589,7 +728,7 @@ namespace lang {
                                 that exceeds the range specified above.
       */
     
-    void move_back(float val = 1);
+    void move_back(float val = 1.0);
       
       /*
       Increases the backness of the vowel by the amount given.  If no value is 
@@ -604,7 +743,7 @@ namespace lang {
                                 the vowel's backness to exceed 4.0.
       */
     
-    void move_forward(float val = 1);
+    void move_forward(float val = 1.0);
       
       /*
       Decreases the backness of the vowel by the amount given.  If no value is 
@@ -763,13 +902,6 @@ namespace lang {
         */
       
       Mechanism _mechanism;
-      
-      bool _is_valid() const;
-        
-        /*
-        Returns whether the consonant is a valid, articulable consonant given 
-        the current values of its fields.
-        */
     
     public:
       
@@ -786,14 +918,14 @@ namespace lang {
         
         Default values of fields:
         
-        manner of articulation:   stop
-        place of articulation:    apical alveolar
-        secondary articulation:   none
-        phonation:                voiceless
-        voice-onset time:         moderate aspiration
-        airstream mechanism:      pulmonic egressive
-        length:                   1.0
-        nasalization:             oral
+          manner of articulation:   stop
+          place of articulation:    apical alveolar
+          secondary articulation:   none
+          phonation:                voiceless
+          voice-onset time:         moderate aspiration
+          airstream mechanism:      pulmonic egressive
+          length:                   1.0
+          nasalization:             oral
         */
       
       Consonant(Manner manner, Place place, Phonation phonation, VOT vot, 
@@ -816,6 +948,31 @@ namespace lang {
           ImpossibleArticulation: Thrown if the arguments passed result in an 
                                   impossible consonant.
         */
+      
+      Consonant(std::string transcription, 
+                PhoneticEncoding encoding = x-sampa);
+      
+      /*
+      Transcription constructor
+      
+      Constructs a consonant from a string containing a phonetic transcription 
+      representing a single consonant.  See the enumeration PhoneticEncoding 
+      for a list of supported transcription systems.
+      
+      Parameters:
+        transcription:  A phonetic transcription representing a single 
+                        consonant.  The transcription may be enclosed in square
+                        brackets or not enclosed.  It may not be enclosed in 
+                        any other type of bracket.
+        encoding:       This parameter specifies which transcription system 
+                        the transcription is encoded in using the set of 
+                        options provided by the PhoneticEncoding enumeration.
+      
+      Exceptions:
+        DecodingFailed: Thrown if transcription cannot be recognized as a 
+                        single valid consonant in the specified transcription 
+                        system.
+      */
       
       Consonant(const Consonant& original);
         
@@ -849,6 +1006,27 @@ namespace lang {
         /*
         Returns a string description of the consonant which specifies all of 
         its defining features.
+        */
+      
+      std::string unicode() const;
+        
+        /*
+        Returns the IPA representation of the consonant, using Unicode 
+        characters where necessary.  Will be enclosed in square brackets.
+        */
+
+      std::string kirschenbaum() const;
+
+        /*
+        Returns the IPA representation of the consonant using Kirschenbaum 
+        encoding.  Will be enclosed in square brackets.
+        */
+
+      std::string x-sampa() const;
+
+        /*
+        Returns the IPA representation of the consonant using X-SAMPA encoding.
+        Will be enclosed in square brackets.
         */
       
       Manner manner() const;
@@ -1082,6 +1260,26 @@ namespace lang {
         Exceptions:
           ImpossibleArticulation: Thrown if the new airstream mechanism given 
                                   would result in an impossible consonant.
+        */
+      
+      void incr_mechanism(int val = 1);
+        
+        /*
+        Increments this consonant's mechanism of articulation according to the 
+        order of the Mechanism enumeration.  Will go around the horn.
+        
+        Parameters:
+          val: The number of mechanisms to increment
+        */
+      
+      void decr_mechanism(int val = 1);
+        
+        /*
+        Decrements this consonant's mechanism of articulation according to the 
+        order of the Mechanism enumeration.  Will go around the horn.
+        
+        Parameters:
+          val: The number of mechanisms to decrement
         */
     
   };
@@ -1547,6 +1745,18 @@ namespace lang {
         
         /*
         Standard field-wise assignment
+        */
+    
+      Tone& operator=(std::initializer_list<int> list);
+        
+        /*
+        list must contain exactly three items, and each item must be between -2
+        and 3, inclusive.
+        
+        Exceptions:
+          expt::ValueError: Thrown if an initializer list is passed that does 
+                            not have exactly three items.
+          ImpossibleArticulation: Thrown if any of the integers is < -2 or > 2.
         */
       
       Tone& operator++();
@@ -2086,6 +2296,30 @@ namespace lang {
           ImpossibleArticulation: Thrown if nucleus is an empty vector.
         */
       
+      Syllable(std::string transcription, PhoneticEncoding encoding = x-sampa);
+      
+        /*
+        Transcription constructor
+
+        Constructs a syllable from a string containing a phonetic transcription
+        representing a single syllable.  See the enumeration PhoneticEncoding 
+        for a list of supported transcription systems.
+
+        Parameters:
+          transcription:  A phonetic transcription representing a single 
+                          syllable.  The transcription may be enclosed in 
+                          square brackets or not enclosed.  It may not be 
+                          enclosed in any other type of bracket.
+          encoding:       This parameter specifies which transcription system 
+                          the transcription is encoded in using the set of 
+                          options provided by the PhoneticEncoding enumeration.
+
+        Exceptions:
+          DecodingFailed: Thrown if transcription cannot be recognized as a 
+                          single valid syllable in the specified transcription 
+                          system.
+        */
+      
       Syllable(const Syllable& original);
         
         /*
@@ -2253,7 +2487,7 @@ namespace lang {
         Returns the syllable's tone.
         */
       
-      void insert_onset(Phone& new_phone, int position);
+      void insert_onset(Phone new_phone, int position);
         
         /*
         Inserts a new phone into the syllable onset.
@@ -2267,7 +2501,7 @@ namespace lang {
           expt::IndexError: Thrown if the bounds check fails.
         */
       
-      void insert_nucleus(Phone& new_phone, int position);
+      void insert_nucleus(Phone new_phone, int position);
         
         /*
         Inserts a new phone into the syllable nucleus.
@@ -2281,7 +2515,7 @@ namespace lang {
           expt::IndexError: Thrown if the bounds check fails.
         */
       
-      void insert_coda(Phone& new_phone, int position);
+      void insert_coda(Phone new_phone, int position);
         
         /*
         Inserts a new phone into the syllable coda.
@@ -2336,9 +2570,30 @@ namespace lang {
     
   };
   
-  typedef std::vector<Syllable> PhoneticWord;
+  typedef std::vector<Syllable> PhoneticSequence;
   
   // Functions
+  
+  PhoneticSequence decode(std::string transcription, 
+                          PhoneticEncoding encoding = x-sampa);
+    
+    /*
+    Constructs a PhoneticSequence from a string containing a phonetic 
+    transcription.  See the enumeration PhoneticEncoding for a list of 
+    supported transcription systems.
+
+    Parameters:
+      transcription:  A phonetic transcription.  The transcription may be 
+                      enclosed in square brackets or not enclosed.  It may not 
+                      be enclosed in any other type of bracket.
+      encoding:       This parameter specifies which transcription system 
+                      the transcription is encoded in using the set of 
+                      options provided by the PhoneticEncoding enumeration.
+
+    Exceptions:
+      DecodingFailed: Thrown if the transcription cannot be entirely recognized
+                      in the specified transcription system.
+    */
   
   Phone::Phonation& operator++(Phone::Phonation& start_val);
     
