@@ -9,7 +9,6 @@ Contents:
   Classes:
     
     class ImpossibleArticulation
-    enum PhoneticEncoding
     class DecodingFailed
     class Phone
       enum Phonation
@@ -26,13 +25,6 @@ Contents:
     class Tone
     class Syllable
     typedef PhoneticSequence
-  
-  Functions:
-    
-    PhoneticSequence decode(std::string, PhoneticEncoding)
-    std::string unicode(const PhoneticSequence&)
-    std::string kirschenbaum(const PhoneticSequence&)
-    std::string x-sampa(const PhoneticSequence&)
 */
 
 #include <string>
@@ -105,71 +97,6 @@ namespace lang {
     
   };
   
-  enum PhoneticEncoding {unicode      = 0, 
-                         x-sampa      = 1, 
-                         kirschenbaum = 2};
-    
-    /*
-    This enumeration provides the set of options for encoding systems for 
-    string representations of phones, phonemes, etc.  It is intended to be used
-    to be used to specify which coding system is being used when passing a 
-    string to a function.
-    */
-  
-  class DecodingFailed : public expt::Exception {
-    
-    /*
-    An exception to be thrown when an attempt to construct an object from a 
-    phonetic/phonemic/etc. transcription fails.
-    */
-    
-    public:
-      
-      ~DecodingFailed();
-        
-        /*
-        Destructor
-        */
-      
-      DecodingFailed();
-        
-        /*
-        Empty constructor
-        */
-      
-      DecodingFailed(std::string message);
-        
-        /*
-        Standard constructor
-        
-        Parameters:
-          message:  A message to give some information about why the exception 
-                    was thrown.
-        */
-      
-      DecodingFailed(const DecodingFailed& original);
-        
-        /*
-        Copy constructor
-        
-        Parameters:
-          original: Other DecodingFailed to be copied
-        */
-      
-      operator expt::Exception();
-        
-        /*
-        Returns a general exception with the same error message.
-        */
-      
-      operator expt::ValueError();
-        
-        /*
-        Returns a ValueError with the same error message.
-        */
-    
-  };
-  
   class Phone {
     
     /*
@@ -180,9 +107,6 @@ namespace lang {
     Pure virtual functions that child classes must implement:
     
       virtual std::string description() const
-      virtual std::string unicode() const
-      virtual std::string kirschenbaum const
-      virtual std::string x-sampa const
     */
     
     public:
@@ -389,27 +313,6 @@ namespace lang {
         Returns a string description of the phone which describes all of its 
         defining characteristics.
         */
-      
-      virtual std::string unicode() const = 0;
-        
-        /*
-        Returns the IPA representation of the phone, using Unicode characters 
-        where necessary.  Will be enclosed in square brackets.
-        */
-      
-      virtual std::string kirschenbaum() const = 0;
-        
-        /*
-        Returns the IPA representation of the phone using Kirschenbaum 
-        encoding.  Will be enclosed in square brackets.
-        */
-      
-      virtual std::string x-sampa() const = 0;
-        
-        /*
-        Returns the IPA representation of the phone using X-SAMPA encoding.  
-        Will be enclosed in square brackets.
-        */
     
   };
   
@@ -583,30 +486,6 @@ namespace lang {
                                 passed for phonation.
       */
     
-    Vowel(std::string transcription, PhoneticEncoding encoding = x-sampa);
-      
-      /*
-      Transcription constructor
-      
-      Constructs a vowel from a string containing a phonetic transcription 
-      representing a single vowel.  See the enumeration PhoneticEncoding for a 
-      list of supported transcription systems.
-      
-      Parameters:
-        transcription:  A phonetic transcription representing a single vowel.  
-                        The transcription may be enclosed in square brackets or
-                        not enclosed.  It may not be enclosed in any other type
-                        of bracket.
-        encoding:       This parameter specifies which transcription system 
-                        the transcription is encoded in using the set of 
-                        options provided by the PhoneticEncoding enumeration.
-      
-      Exceptions:
-        DecodingFailed: Thrown if transcription cannot be recognized as a 
-                        single valid vowel in the specified transcription 
-                        system.
-      */
-    
     Vowel(const Vowel& original);
       
       /*
@@ -639,27 +518,6 @@ namespace lang {
       /*
       Returns a description of the vowel which specifies all of its defining 
       characteristics using standard IPA terminology.
-      */
-    
-    std::string unicode() const;
-        
-      /*
-      Returns the IPA representation of the vowel, using Unicode characters 
-      where necessary.  Will be enclosed in square brackets.
-      */
-      
-    std::string kirschenbaum() const;
-        
-      /*
-      Returns the IPA representation of the vowel using Kirschenbaum 
-      encoding.  Will be enclosed in square brackets.
-      */
-      
-    std::string x-sampa() const;
-        
-      /*
-      Returns the IPA representation of the vowel using X-SAMPA encoding.  
-      Will be enclosed in square brackets.
       */
     
     float height() const;
@@ -956,31 +814,6 @@ namespace lang {
                                   impossible consonant.
         */
       
-      Consonant(std::string transcription, 
-                PhoneticEncoding encoding = x-sampa);
-      
-      /*
-      Transcription constructor
-      
-      Constructs a consonant from a string containing a phonetic transcription 
-      representing a single consonant.  See the enumeration PhoneticEncoding 
-      for a list of supported transcription systems.
-      
-      Parameters:
-        transcription:  A phonetic transcription representing a single 
-                        consonant.  The transcription may be enclosed in square
-                        brackets or not enclosed.  It may not be enclosed in 
-                        any other type of bracket.
-        encoding:       This parameter specifies which transcription system 
-                        the transcription is encoded in using the set of 
-                        options provided by the PhoneticEncoding enumeration.
-      
-      Exceptions:
-        DecodingFailed: Thrown if transcription cannot be recognized as a 
-                        single valid consonant in the specified transcription 
-                        system.
-      */
-      
       Consonant(const Consonant& original);
         
         /*
@@ -1013,27 +846,6 @@ namespace lang {
         /*
         Returns a string description of the consonant which specifies all of 
         its defining features.
-        */
-      
-      std::string unicode() const;
-        
-        /*
-        Returns the IPA representation of the consonant, using Unicode 
-        characters where necessary.  Will be enclosed in square brackets.
-        */
-
-      std::string kirschenbaum() const;
-
-        /*
-        Returns the IPA representation of the consonant using Kirschenbaum 
-        encoding.  Will be enclosed in square brackets.
-        */
-
-      std::string x-sampa() const;
-
-        /*
-        Returns the IPA representation of the consonant using X-SAMPA encoding.
-        Will be enclosed in square brackets.
         */
       
       Manner manner() const;
@@ -2601,48 +2413,6 @@ namespace lang {
   typedef std::vector<Syllable> PhoneticSequence;
   
   // Functions
-  
-  PhoneticSequence decode(std::string transcription, 
-                          PhoneticEncoding encoding = x-sampa);
-    
-    /*
-    Constructs a PhoneticSequence from a string containing a phonetic 
-    transcription.  See the enumeration PhoneticEncoding for a list of 
-    supported transcription systems.
-
-    Parameters:
-      transcription:  A phonetic transcription.  The transcription may be 
-                      enclosed in square brackets or not enclosed.  It may not 
-                      be enclosed in any other type of bracket.
-      encoding:       This parameter specifies which transcription system 
-                      the transcription is encoded in using the set of 
-                      options provided by the PhoneticEncoding enumeration.
-
-    Exceptions:
-      DecodingFailed: Thrown if the transcription cannot be entirely recognized
-                      in the specified transcription system.
-    */
-  
-  std::string unicode(const PhoneticSequence& phonetic_sequence);
-        
-    /*
-    Returns the IPA representation of the sequence, using Unicode characters 
-    where necessary.  Will be enclosed in square brackets.
-    */
-      
-  std::string kirschenbaum(const PhoneticSequence& phonetic_sequence);
-        
-    /*
-    Returns the IPA representation of the sequence using Kirschenbaum 
-    encoding.  Will be enclosed in square brackets.
-    */
-      
-  std::string x-sampa(const PhoneticSequence& phonetic_sequence);
-        
-    /*
-    Returns the IPA representation of the sequence using X-SAMPA encoding.  
-    Will be enclosed in square brackets.
-    */
   
   Phone::Phonation& operator++(Phone::Phonation& start_val);
     
