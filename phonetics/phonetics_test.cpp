@@ -556,6 +556,71 @@ TEST(VowelTest, roundedness) {
   
 }
 
+TEST(VowelTest, set_roundedness) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(Vowel::unrounded, vowel1.roundedness());
+  
+  vowel1.set_roundedness(Vowel::exolabial);
+  EXPECT_EQ(Vowel::exolabial, vowel1.roundedness());
+  
+  vowel1.set_roundedness(Vowel::endolabial);
+  EXPECT_EQ(Vowel::endolabial, vowel1.roundedness());
+  
+}
+
+TEST(VowelTest, is_rounded) {
+  
+  Vowel vowel1;
+  EXPECT_FALSE(vowel1.is_rounded());
+  
+  vowel1.set_roundedness(Vowel::exolabial);
+  EXPECT_TRUE(vowel1.is_rounded());
+  
+  vowel1.set_roundedness(Vowel::endolabial);
+  EXPECT_TRUE(vowel1.is_rounded());
+  
+}
+
+TEST(VowelTest, is_r_colored) {
+  
+  Vowel vowel1;
+  EXPECT_FALSE(vowel1.is_r_colored());
+  
+  vowel1.r_color();
+  EXPECT_TRUE(vowel1.is_r_colored());
+  
+  vowel1.de_r_color();
+  EXPECT_FALSE(vowel1.is_r_colored());
+  
+}
+
+TEST(VowelTest, r_color) {
+  
+  Vowel vowel1;
+  EXPECT_FALSE(vowel1.is_r_colored());
+  
+  vowel1.r_color();
+  EXPECT_TRUE(vowel1.is_r_colored());
+  
+}
+
+TEST(VowelTest, de_r_color) {
+  
+  Vowel vowel1;
+  vowel1.r_color();
+  EXPECT_TRUE(vowel1.is_r_colored());
+  vowel1.de_r_color();
+  EXPECT_FALSE(vowel1.is_r_colored());
+  
+}
+
+TEST(VowelTest, overall) {
+  
+  
+  
+}
+
 int main() {
   
   testing::InitGoogleTest(&argc, argv);
