@@ -1,4 +1,4 @@
-/*
+nea/*
 Filename: phonetics.h
 
 This header file contains the definitions of the phonetics portion of the lang 

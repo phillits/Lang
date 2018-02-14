@@ -74,6 +74,22 @@ TEST(ImpossibleArticulationTest, value_error_conversion) {
   
 }
 
+TEST(ImpossibleArticulationTest, overall) {
+  
+  bool error_caught(false);
+  std::string message;
+  try {
+    throw ImpossibleArticulation("Backness may not exceed 4.0.");
+  }
+  catch(ImpossibleArticulation e) {
+    error_caught = true;
+    message = e.message();
+  }
+  EXPECT_TRUE(error_caught);
+  EXPECT_EQ("Backness may not exceed 4.0.", message);
+  
+}
+
 TEST(PhoneTest, nasalization) {
   
   Vowel vowel1;
@@ -297,7 +313,248 @@ TEST(VowelTest, simple_constructor) {
   
 }
 
+TEST(VowelTest, detailed_constructor) {
+  
+  Vowel vowel1(Vowel::near_open, Vowel::near_front, Vowel::endolabial,
+               Phone::nasal, true, Phone::slack, 2.0);
+  
+  // Fields initialize as expected
+  EXPECT_EQ(Vowel::near_open, vowel1.height());
+  EXPECT_EQ(Vowel::near_front, vowel1.backness());
+  EXPECT_EQ(Vowel::endolabial, vowel1.roundedness());
+  EXPECT_TRUE(vowel1.is_nasal());
+  EXPECT_TRUE(vowel1.is_r-colored());
+  EXPECT_EQ(Phone::slack, vowel1.phonation());
+  EXPECT_EQ(2.0, vowel1.length());
+  
+}
 
+TEST(VowelTest, copy_constructor) {
+  
+  Vowel vowel1(Vowel::open_mid, Vowel::near_back, Vowel::unrounded);
+  Vowel vowel2(vowel1);
+  
+  // Fields initialize as expected
+  EXPECT_EQ(vowel1.height(), vowel2.height());
+  EXPECT_EQ(vowel1.backness(), vowel2.backness());
+  EXPECT_EQ(vowel1.roundedness(), vowel2.roundedness());
+  EXPECT_EQ(vowel1.length(), vowel2.length());
+  EXPECT_FALSE(vowel2.is_nasal());
+  
+}
+
+TEST(VowelTest, assignment_operator) {
+  
+  Vowel vowel1;
+  Vowel vowel2(Vowel::close, Vowel::back, Vowel::unrounded);
+  vowel1 = vowel2;
+  
+  // Fields transfer
+  EXPECT_EQ(vowel2.height(), vowel1.height());
+  EXPECT_EQ(vowel2.backness(), vowel1.backness());
+  EXPECT_EQ(vowel2.roundedness(), vowel1.roundedness());
+  EXPECT_EQ(vowel2.length(), vowel1.length());
+  EXPECT_EQ(vowel2.nasalization(), vowel1.nasalization());
+  
+  // Equality
+  EXPECT_EQ(vowel2, vowel1);
+  
+}
+
+TEST(VowelTest, equality_operator) {
+  
+  Vowel vowel1(Vowel::open, Vowel::mid, Vowel::endolabial);
+  Vowel vowel2(Vowel::open, Vowel::mid, Vowel::endolabial);
+  EXPECT_EQ(vowel1, vowel2);
+  EXPECT_TRUE(vowel 1 == vowel2);
+  
+  Vowel vowel3;
+  Vowel vowel4(Vowel::open, Vowel::close_mid, Vowel::exolabial);
+  vowel3 = vowel4;
+  EXPECT_EQ(vowel3, vowel4);
+  EXPECT_TRUE(vowel3 == vowel4);
+  
+}
+
+TEST(VowelTest, inequality_operator) {
+  
+  Vowel vowel1;
+  Vowel vowel2(Vowel::open, Vowel::mid, Vowel::exolabial);
+  EXPECT_TRUE(vowel1 != vowel2);
+  
+  Vowel vowel3(Vowel::close, Vowel::mid, Vowel::exolabial);
+  EXPECT_TRUE(vowel2 != vowel3);
+  
+  Vowel vowel4(Vowel::close, Vowel::front, Vowel::exolabial);
+  EXPECT_TRUE(vowel3 != vowel4);
+  
+}
+
+TEST(VowelTest, description) {
+  
+  Vowel vowel1;
+  EXPECT_EQ("mid central unrounded vowel", vowel1.description());
+  
+  Vowel vowel2(Vowel::close, Vowel::central, Vowel::exolabial);
+  EXPECT_EQ("close central rounded vowel");
+  
+  Vowel vowel3(Vowel::near_open, Vowel::near_front, Vowel::unrounded, 
+               Phone::nasal, false, Phonation::modal, 2.0);
+  EXPECT_EQ("long nasal near-open near-front unrounded vowel");
+  
+  Vowel vowel4(Vowel::near_open, Vowel::near_back, Vowel::endolabial, 
+               Phone::strongly_nasal, true, 3.0);
+  EXPECT_EQ("extra-long strongly-nasal r-colored near-open near-back endolabial rounded vowel",
+            vowel4.description());
+  
+  Vowel vowel5(Vowel::near_close, Vowel::back, Vowel::unrounded, Phone::oral, 
+               false, 0.5);
+  EXPECT_EQ("short near-close back unrounded vowel");
+  
+}
+
+TEST(VowelTest, height) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(3.0, vowel1.height());
+  
+  vowel1.set_height(4.0);
+  EXPECT_EQ(4.0, vowel1.height());
+  
+}
+
+TEST(VowelTest, set_height) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(3.0, vowel1.height());
+  
+  vowel1.set_height(2.0);
+  EXPECT_EQ(2.0, vowel1.height());
+  
+  vowel1.set_height(1.5);
+  EXPECT_EQ(1.5, vowel1.height());
+  
+  vowel1.set_height(0.0);
+  EXPECT_EQ(0.0, vowel1.height());
+  
+}
+
+TEST(VowelTest, raise) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(3.0, vowel1.height());
+  
+  vowel1.raise();
+  EXPECT_EQ(4.0, vowel1.height());
+  
+  vowel1.raise(0.5);
+  EXPECT_EQ(4.5, vowel1.height());
+  
+}
+
+TEST(VowelTest, lower) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(3.0, vowel1.height());
+  
+  vowel1.lower();
+  EXPECT_EQ(2.0, vowel1.height());
+  
+  vowel1.lower(0.5);
+  EXPECT_EQ(1.5, vowel1.height());
+  
+}
+
+TEST(VowelTest, backness) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(2.0, vowel1.backness());
+  
+  vowel1.set_backness(3.0);
+  EXPECT_EQ(3.0, vowel1.backness());
+  
+  vowel1.set_backness(3.5);
+  EXPECT_EQ(3.5, vowel1.backness());
+  
+}
+
+TEST(VowelTest, set_backness) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(2.0, vowel1.backness())
+    
+  vowel1.set_backness(1.0);
+  EXPECT_EQ(1.0, vowel1.backness());
+  
+  vowel1.set_backness(1.5);
+  EXPECT_EQ(1.5, vowel1.backness());
+  
+  vowel1.set_backness(0.0);
+  EXPECT_EQ(0.0, vowel1.backness());
+  
+}
+
+TEST(VowelTest, move_back) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(2.0, vowel1.backness());
+  
+  vowel1.move_back();
+  EXPECT_EQ(3.0, vowel1.backness());
+  
+  vowel1.move_back(0.5);
+  EXPECT_EQ(3.5, vowel1.backness());
+  
+  bool error_thrown(false);
+  try {
+    vowel1.move_back(2.0);
+  }
+  catch(ImpossibleArticulation e) {
+    error_thrown = true;
+  }
+  EXPECT_TRUE(error_thrown);
+  
+  vowel1.set_backness(0.0);
+  vowel1.move_back(0.01);
+  EXPECT_EQ(0.01, vowel1.backness());
+  
+}
+
+TEST(VowelTest, move_forward) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(2.0, vowel1.backness());
+  
+  vowel1.move_forward();
+  EXPECT_EQ(1.0, vowel1.backness());
+  
+  vowel1.move_forward(0.5);
+  EXPECT_EQ(0.5, vowel1.backness());
+  
+  vowel1.move_forward(0.01);
+  EXPECT_EQ(0.49, vowel1.backness());
+  
+  bool error_thrown(false);
+  try {
+    vowel1.move_forward(2.0);
+  }
+  catch(ImpossibleArticulation e) {
+    error_thrown = true;
+  }
+  EXPECT_TRUE(error_thrown);
+  EXPECT_EQ(0.49, vowel1.backness());
+  
+}
+
+TEST(VowelTest, roundedness) {
+  
+  Vowel vowel1;
+  EXPECT_EQ(Vowel::unrounded, vowel1.roundedness());
+  
+  vowel1.set_roundedness(Vowel::exolabial);
+  EXPECT_EQ(Vowel::exolabial, vowel1.roundedness());
+  
+}
 
 int main() {
   
