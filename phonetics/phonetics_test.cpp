@@ -617,7 +617,168 @@ TEST(VowelTest, de_r_color) {
 
 TEST(VowelTest, overall) {
   
+  Vowel vowel1(Vowel::close, Vowel::front, Vowel::unrounded);
+  EXPECT_EQ(Vowel::close, vowel1.height());
+  EXPECT_EQ(Vowel::front, vowel1.backness());
+  EXPECT_FALSE(vowel1.is_rounded());
+  EXPECT_EQ(1.0, vowel1.length());
+  EXPECT_FALSE(vowel1.is_nasal());
+  EXPECT_FALSE(vowel1.is_r_colored());
   
+  vowel1.set_roundedness(Vowel::exolabial);
+  EXPECT_EQ(Vowel::exolabial, vowel1.roundedness());
+  EXPECT_EQ(Vowel::close, vowel1.height());
+  EXPECT_EQ(Vowel::front, vowel1.backness());
+  EXPECT_EQ(1.0, vowel1.length());
+  EXPECT_FALSE(vowel1.is_nasal());
+  EXPECT_FALSE(vowel1.is_r_colored());
+  
+}
+
+TEST(ConsonantTest, empty_constructor) {
+  
+  Consonant consonant1;
+  
+  // Fields initialize as expected
+  EXPECT_EQ(Consonant::stop, consonant1.manner());
+  EXPECT_EQ(Consonant::apical_alveolar, consonant1.place());
+  EXPECT_FALSE(consonant1.has_secondary_articulation());
+  EXPECT_EQ(Phone::voiceless, consonant1.phonation());
+  EXPECT_EQ(Consonant::moderately_aspirated, consonant1.vot());
+  EXPECT_EQ(Consonant::pul_eg, consonant1.mechanism());
+  EXPECT_EQ(1.0, consonant1.length());
+  EXPECT_FALSE(consonant1.is_nasal());
+  
+}
+
+TEST(ConsonantTest, standard_constructor) {
+  
+  // Default parameters
+  Consonant consonant1(Consonant::stop, 
+                       Consonant::bilabial, 
+                       Phone::voiceless, 
+                       VOT::moderately_aspirated);
+  EXPECT_EQ(Consonant::stop, consonant1.manner());
+  EXPECT_EQ(Consonant::bilabial, consonant1.place());
+  EXPECT_FALSE(consonant1.has_secondary_articulation());
+  EXPECT_EQ(Phone::voiceless, consonant1.phonation());
+  EXPECT_EQ(Consonant::moderately_aspirated, consonant1.vot());
+  EXPECT_FALSE(consonant1.is_nasal());
+  EXPECT_EQ(Consonant::pul_eg, consonant1.mechanism());
+  EXPECT_EQ(1.0, consonant1.length());
+  
+  // All parameters specified
+  Consonant consonant2(Consonant::nsib_fricative, 
+                       Consonant::labiodental, 
+                       Phone::voiceless, 
+                       Consonant::not_aspirated, 
+                       Phone::oral, 
+                       Consonant::pul_eg, 
+                       2.0);
+  EXPECT_EQ(Consonant::nsib_fricative, consonant2.manner());
+  EXPECT_EQ(Consonant::labiodental, consonant2.place());
+  EXPECT_FALSE(consonant2.has_secondary_articulation());
+  EXPECT_EQ(Phone::voiceless, consonant2.phonation());
+  EXPECT_EQ(Consonant::not_aspirated, consonant2.vot());
+  EXPECT_FALSE(consonant2.is_nasal());
+  EXPECT_EQ(Consonant::pul_eg, consonant2.mechanism());
+  EXPECT_EQ(2.0, consonant2.length());
+  
+  // Error case 1 - impossible pulmonic-egressive consonant
+  bool exception_thrown(false);
+  try {
+    Consonant consonant3(Consonant::stop, 
+                         Consonant::pharyngeal, 
+                         Phone::modal, 
+                         Consonant::strongly_aspirated, 
+                         Phone::strongly_nasal, 
+                         Consonant::pul_eg, 
+                         0.75);
+  }
+  catch(ImpossibleArticulation e) {
+    exception_thrown = true;
+  }
+  EXPECT_TRUE(exception_thrown);
+  
+  // Error case 2 - negative length
+  exception_thrown = false;
+  try {
+    Consonant consonant4(Consonant::nasal, 
+                         Consonant::bilabial, 
+                         Phone::voiceless, 
+                         Consonant::not_aspirated, 
+                         Phone::strongly_nasal, 
+                         Consonant::pul_eg, 
+                         -1.0);
+  }
+  catch(ImpossibleArticulation e) {
+    exception_thrown = true;
+  }
+  EXPECT_TRUE(exception_thrown);
+  
+  // Error case 3 - impossible non-pulmonic consonant
+  exception_thrown = false;
+  try {
+    Consonant consonant5(Consonant::stop, 
+                         Consonant::bilabial, 
+                         Phone::modal, 
+                         Consonant::completely_voiced, 
+                         Phone::oral, 
+                         Consonant::ejective, 
+                         1.0);
+  }
+  catch(ImpossibleArticulation e) {
+    exception_thrown = true;
+  }
+  EXPECT_TRUE(exception_thrown);
+  
+  // Error case 4 - phonation-VOT conflict
+  exception_thrown = false;
+  try {
+    Consonant consonant6(Consonant::trill, 
+                         Consonant::apical_dental, 
+                         Phone::voiceless, 
+                         Consonant::completely_voiced, 
+                         Phone::oral, 
+                         Consonant::pul_eg, 
+                         1.0);
+  }
+  catch(ImpossibleArticulation e) {
+    exception_thrown = true;
+  }
+  EXPECT_TRUE(exception_thrown);
+  
+  // Error case 5 - manner-nasalization conflict
+  bool exception_thrown(false);
+  try {
+    Consonant consonant7(Consonant::nasal, 
+                         Consonant::laminal_dental, 
+                         Phone::modal, 
+                         Consonant::weakly_voiced, 
+                         Phone::oral, 
+                         Consonant::pul_eg, 
+                         0.5);
+  }
+  catch(ImpossibleArticulation e) {
+    exception_thrown = true;
+  }
+  EXPECT_TRUE(exception_thrown);
+  
+  // Error case 6 - zero length
+  exception_thrown = false;
+  try {
+    Consonant consonant8(Consonant::stop, 
+                         Consonant::bilabial, 
+                         Phone::modal, 
+                         Consonant::moderately_voiced, 
+                         Phone::strongly_nasal, 
+                         Consonant::pul_eg, 
+                         0.0);
+  }
+  catch(ImpossibleArticulation e) {
+    exception_thrown = true;
+  }
+  EXPECT_TRUE(exception_thrown);
   
 }
 
